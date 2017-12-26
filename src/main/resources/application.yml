@@ -1,6 +1,20 @@
 spring:
   application:
     name: lazuly-users
+  data:
+    mongodb:
+      database: lazuly-profiles
+  cloud:
+    stream:
+      default-binder: kafka
+      bindings:
+        input: #Es el input definido por default en Sink
+          destination: newOwner
+          content-type: application/json
+          group: lazuly-users #Esto es lo que permite tener una cola por servicio
+        output:
+          destination: newUser #Nombre de la cola o topic
+          content-type: application/json
 app:
   host: ${HOST}
   security:
@@ -22,6 +36,15 @@ logging:
 ---
 spring:
   profiles: developer
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+  cloud:
+    stream:
+      kafka:
+        binder:
+          zkNodes: localhost
+          brokers: localhost
 app:
   secret: aidafrancoygeorgelosamo
   signing:
@@ -32,6 +55,15 @@ server:
 ---
 spring:
   profiles: staging
+  data:
+    mongodb:
+      uri: ${MONGO_DB_URI}
+  cloud:
+    stream:
+      kafka:
+        binder:
+          zkNodes: localhost
+          brokers: localhost
 app:
   secret: ${INTERNAL_SECRET}
   signing:

@@ -1,16 +1,28 @@
 package co.lazuly.users.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
  * Created by boot on 25/12/2017.
  */
+@Document(collection = "profiles")
 public class User {
-    private final Long schoolId;
+
+    @Id
     private final String email;
+
+    @Indexed(name = "school_index")
+    @NotNull(message = "Field school cant be null")
+    private final Long schoolId;
+
     private final String firstName;
     private final String lastName;
-    private final List<String> roles;
+    private final List<Role> roles;
 
     public User() {
         this.schoolId = null;
@@ -21,7 +33,7 @@ public class User {
     }
 
     public User(final Long schoolId, final String email, final String firstName, final String lastName,
-                final List<String> roles) {
+                final List<Role> roles) {
         this.schoolId = schoolId;
         this.email = email;
         this.firstName = firstName;
@@ -45,7 +57,7 @@ public class User {
         return lastName;
     }
 
-    public List<String> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
 

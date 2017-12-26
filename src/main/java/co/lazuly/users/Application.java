@@ -8,8 +8,12 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.messaging.Source;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Primary;
@@ -32,9 +36,11 @@ import static org.springframework.http.MediaType.ALL;
  * Created by boot on 9/5/17.
  */
 @SpringBootApplication
+@EnableAutoConfiguration
 @ComponentScan
 @EnableEurekaClient
 @EnableResourceServer
+@EnableFeignClients
 public class Application extends WebMvcConfigurerAdapter {
     private final static Logger log = LoggerFactory.getLogger(Application.class);
 
