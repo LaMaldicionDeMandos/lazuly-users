@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: lazuly-users
+app:
+  host: ${HOST}
+  security:
+    clientkey: ${CLIENT_KEY}
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: ${HOST}:8761/eureka/
+#Setting the logging levels for the service
+logging:
+  level:
+    com.netflix: WARN
+    org.springframework.web: WARN
+    com.thoughtmechanix: DEBUG
+---
+spring:
+  profiles: developer
+app:
+  secret: aidafrancoygeorgelosamo
+  signing:
+    key: aidafrancoygeorgelosamo
+server:
+  port: 8080
+
+---
+spring:
+  profiles: staging
+app:
+  secret: ${INTERNAL_SECRET}
+  signing:
+    key: ${JWT_SECRET}
+server:
+  port: ${PORT}
