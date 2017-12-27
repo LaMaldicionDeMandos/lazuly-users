@@ -46,4 +46,13 @@ public class UserService {
         }
         return old;
     }
+
+    public User delete(final Long schoolId, final String email) {
+        User user = repo.findBySchoolIdAndEmail(schoolId, email);
+        if (!isNull(user) && !user.owner()) {
+            repo.delete(user);
+            return user;
+        }
+        return null;
+    }
 }

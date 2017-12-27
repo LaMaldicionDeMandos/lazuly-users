@@ -134,5 +134,24 @@ public class UsersResource {
         }
     }
 
+    @RequestMapping(value = "{email}", method = RequestMethod.DELETE)
+    public ResponseEntity<User> delete(final OAuth2Authentication owner, @PathVariable final String email) {
+        logger.info("Looking up data for {}", owner.getPrincipal());
+        if (!isUserCrudAuthorized(owner)) return status(UNAUTHORIZED).build();
 
+        Long schoolId = utils.getSchoolId(owner);
+
+        try {
+            User user = service.delete(schoolId, email);
+
+            if (isNull(user)) return badRequest().build();
+
+            //TODO inform to auth service
+
+            return ok(user);
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+            return status(INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
