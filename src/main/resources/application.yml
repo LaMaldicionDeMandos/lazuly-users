@@ -8,12 +8,15 @@ spring:
     stream:
       default-binder: kafka
       bindings:
-        input: #Es el input definido por default en Sink
+        new_owner_input: #Es el input definido por default en Sink
           destination: newOwner
           content-type: application/json
           group: lazuly-users #Esto es lo que permite tener una cola por servicio
-        output:
+        new_user_output:
           destination: newUser #Nombre de la cola o topic
+          content-type: application/json
+        delete_user_output:
+          destination: deleteUser #Nombre de la cola o topic
           content-type: application/json
 app:
   host: ${HOST}

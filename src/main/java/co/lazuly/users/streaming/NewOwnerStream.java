@@ -17,14 +17,14 @@ import static java.util.Objects.isNull;
 /**
  * Created by boot on 26/12/2017.
  */
-@EnableBinding(Sink.class)
+@EnableBinding(UserChannels.class)
 public class NewOwnerStream {
 
     @Autowired
     UserService service;
 
     private final Logger logger = LoggerFactory.getLogger(NewOwnerStream.class);
-    @StreamListener(Sink.INPUT)
+    @StreamListener(UserChannels.NEW_OWNER_INPUT)
     public void newOwner(final NewUser req) {
         logger.info("Receiving new owner {}.", req);
         try {

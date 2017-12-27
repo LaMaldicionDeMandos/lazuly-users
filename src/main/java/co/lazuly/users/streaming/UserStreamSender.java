@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.messaging.Source;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
@@ -13,19 +12,24 @@ import org.springframework.stereotype.Component;
  * Created by boot on 26/12/2017.
  */
 @Component
-@EnableBinding(Source.class)
-public class NewUserStreamSender {
-    private final Source source;
+@EnableBinding(UserChannels.class)
+public class UserStreamSender {
+    private final UserChannels source;
 
-    private final static Logger logger = LoggerFactory.getLogger(NewUserStreamSender.class);
+    private final static Logger logger = LoggerFactory.getLogger(UserStreamSender.class);
 
     @Autowired
-    public NewUserStreamSender(final Source source) {
+    public UserStreamSender(final UserChannels source) {
         this.source = source;
     }
 
     public void send(final NewUserRequest req) {
         logger.debug("Sending Kafka message {}", req);
-        source.output().send(MessageBuilder.withPayload(req).build());
+        source.newUserOutput().send(MessageBuilder.withPayload(req).build());
+    }
+
+    public void deleteUser(final String email) {
+        logger.debug("Sending Kafka delete {}", email);
+        source.deleteUserOutput().send(MessageBuilder.withPayload(email).build());
     }
 }

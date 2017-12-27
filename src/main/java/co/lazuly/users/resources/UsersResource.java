@@ -6,7 +6,7 @@ import co.lazuly.users.restclients.RolesRestClient;
 import co.lazuly.users.security.Role;
 import co.lazuly.users.services.UserService;
 import co.lazuly.users.streaming.NewUser;
-import co.lazuly.users.streaming.NewUserStreamSender;
+import co.lazuly.users.streaming.UserStreamSender;
 import co.lazuly.users.utils.UserTokenUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public class UsersResource {
     RolesRestClient rolesRestClient;
 
     @Autowired
-    NewUserStreamSender sender;
+    UserStreamSender sender;
 
     private boolean isUserCrudAuthorized(OAuth2Authentication user) {
         Collection<Role> ownerRoles = utils.getRoles(user);
@@ -146,7 +146,7 @@ public class UsersResource {
 
             if (isNull(user)) return badRequest().build();
 
-            //TODO inform to auth service
+            sender.deleteUser(email);
 
             return ok(user);
         } catch (Exception e) {
