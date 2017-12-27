@@ -13,6 +13,7 @@ import java.util.List;
 @Document(collection = "profiles")
 public class User {
 
+    public static final String OWNER = "owner";
     @Id
     private final String email;
 
@@ -59,6 +60,10 @@ public class User {
 
     public List<Role> getRoles() {
         return roles;
+    }
+
+    public boolean owner() {
+        return roles.stream().anyMatch((role) -> role.getCode().equals(OWNER));
     }
 
     @Override

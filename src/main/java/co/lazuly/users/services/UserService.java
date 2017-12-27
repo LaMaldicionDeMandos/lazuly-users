@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+
+import static java.util.Objects.isNull;
 
 /**
  * Created by boot on 25/12/2017.
@@ -28,7 +31,19 @@ public class UserService {
         return user;
     }
 
+    public User get(String email) {
+        return repo.findOneByEmail(email);
+    }
+
     public List<User> getSchoolUsers(Long schoolId) {
         return repo.findBySchoolId(schoolId);
+    }
+
+    public User change(final Long schoolId, final User user) {
+        User old = repo.findBySchoolIdAndEmail(schoolId, user.getEmail());
+        if (!isNull(old)) {
+            repo.save(user);
+        }
+        return old;
     }
 }

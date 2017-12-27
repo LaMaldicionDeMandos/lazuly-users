@@ -19,9 +19,12 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.collect.Iterables.any;
+import static java.util.Objects.isNull;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.ResponseEntity.badRequest;
+import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.http.ResponseEntity.status;
 
 /**
@@ -33,6 +36,7 @@ public class UsersResource {
     private static final Logger logger = LoggerFactory.getLogger(UsersResource.class);
 
     private final static String USER_CRUD_PERMISSION = "user_crud";
+    private final static String OWNER = "owner";
 
     @Autowired
     UserTokenUtils utils;
@@ -51,14 +55,25 @@ public class UsersResource {
         return any(ownerRoles, (role) -> role.hasPermissionName(USER_CRUD_PERMISSION));
     }
 
+    private boolean isRolesChanged(User newUser, User oldUser) {
+        return newUser.getRoles().equals(oldUser.getRoles());
+    }
+
+    private boolean isWellDefine(final Long schoolId, final String email, final User user, final User old) {
+        return email.equals(user.getEmail()) &&
+                schoolId.equals(user.getSchoolId()) &&
+                user.owner() == old.owner();
+    }
+
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<User> newUser(final OAuth2Authentication user, @RequestBody final NewUserRequest req) {
         logger.info("Looking up data for {}", user.getPrincipal());
-        Long schoolId = utils.getSchoolId(user);
 
         if (!isUserCrudAuthorized(user)) {
             return status(UNAUTHORIZED).build();
         }
+
+        Long schoolId = utils.getSchoolId(user);
 
         try {
             List<co.lazuly.users.model.Role> roles = rolesRestClient.get(req.getRoles());
@@ -70,24 +85,54 @@ public class UsersResource {
             return status(CREATED).body(newUser);
         } catch (Exception e) {
             logger.info(e.getMessage());
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR).build();
+            return status(INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @RequestMapping
     public ResponseEntity<List<User>> get(final OAuth2Authentication owner) {
-        Long schoolId = utils.getSchoolId(owner);
-
         if (!isUserCrudAuthorized(owner)) {
             return status(UNAUTHORIZED).build();
         }
 
+        Long schoolId = utils.getSchoolId(owner);
+
         try {
             List<User> users = service.getSchoolUsers(schoolId);
-            return ResponseEntity.ok(users);
+            return ok(users);
         } catch(Exception e) {
             logger.info(e.getMessage());
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR).build();
+            return status(INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @RequestMapping(value = "{email}", method = RequestMethod.PUT)
+    public ResponseEntity<User> change(final OAuth2Authentication owner, @PathVariable final String email,
+                                       @RequestBody User user) {
+        logger.info("Looking up data for {}", owner.getPrincipal());
+        if (!isUserCrudAuthorized(owner)) return status(UNAUTHORIZED).build();
+
+        Long schoolId = utils.getSchoolId(owner);
+
+        User oldUser = service.get(email);
+
+        if (isNull(oldUser) || !isWellDefine(schoolId, email, user, oldUser)) return badRequest().build();
+
+        try {
+            oldUser = service.change(schoolId, user);
+
+            if (isNull(oldUser)) return badRequest().build();
+
+            if (isRolesChanged(user, oldUser)) {
+                //TODO inform to auth service
+            }
+
+            return ok(user);
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+            return status(INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 }

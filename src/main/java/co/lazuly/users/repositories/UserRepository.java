@@ -11,5 +11,7 @@ import java.util.List;
  */
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
+    User findOneByEmail(String email);
     List<User> findBySchoolId(Long schoolId);
+    User findBySchoolIdAndEmail(final Long schoolId, final String email);
 }
