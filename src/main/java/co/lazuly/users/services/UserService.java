@@ -3,7 +3,6 @@ package co.lazuly.users.services;
 import co.lazuly.users.model.Role;
 import co.lazuly.users.model.User;
 import co.lazuly.users.repositories.UserRepository;
-import co.lazuly.users.streaming.NewUserStreamSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,5 +26,9 @@ public class UserService {
         User user = new User(schoolId, email, firstName, lastName, roles);
         user = repo.save(user);
         return user;
+    }
+
+    public List<User> getSchoolUsers(Long schoolId) {
+        return repo.findBySchoolId(schoolId);
     }
 }

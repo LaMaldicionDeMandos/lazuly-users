@@ -8,11 +8,9 @@ import co.lazuly.users.services.UserService;
 import co.lazuly.users.streaming.NewUser;
 import co.lazuly.users.streaming.NewUserStreamSender;
 import co.lazuly.users.utils.UserTokenUtils;
-import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 import java.util.List;
 
+import static com.google.common.collect.Iterables.any;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -47,15 +46,20 @@ public class UsersResource {
     @Autowired
     NewUserStreamSender sender;
 
+    private boolean isUserCrudAuthorized(OAuth2Authentication user) {
+        Collection<Role> ownerRoles = utils.getRoles(user);
+        return any(ownerRoles, (role) -> role.hasPermissionName(USER_CRUD_PERMISSION));
+    }
+
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<User> newUser(final OAuth2Authentication user, @RequestBody final NewUserRequest req) {
         logger.info("Looking up data for {}", user.getPrincipal());
         Long schoolId = utils.getSchoolId(user);
-        Collection<Role> ownerRoles = utils.getRoles(user);
 
-        if (!Iterables.any(ownerRoles, (role) -> role.hasPermissionName(USER_CRUD_PERMISSION))) {
+        if (!isUserCrudAuthorized(user)) {
             return status(UNAUTHORIZED).build();
         }
+
         try {
             List<co.lazuly.users.model.Role> roles = rolesRestClient.get(req.getRoles());
 
@@ -65,6 +69,23 @@ public class UsersResource {
 
             return status(CREATED).body(newUser);
         } catch (Exception e) {
+            logger.info(e.getMessage());
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @RequestMapping
+    public ResponseEntity<List<User>> get(final OAuth2Authentication owner) {
+        Long schoolId = utils.getSchoolId(owner);
+
+        if (!isUserCrudAuthorized(owner)) {
+            return status(UNAUTHORIZED).build();
+        }
+
+        try {
+            List<User> users = service.getSchoolUsers(schoolId);
+            return ResponseEntity.ok(users);
+        } catch(Exception e) {
             logger.info(e.getMessage());
             return ResponseEntity.status(INTERNAL_SERVER_ERROR).build();
         }
