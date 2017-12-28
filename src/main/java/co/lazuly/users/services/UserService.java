@@ -25,8 +25,8 @@ public class UserService {
     }
 
     public User create(final Long schoolId, final String email, final String firstName, final String lastName,
-                       final List<Role> roles) {
-        User user = new User(schoolId, email, firstName, lastName, roles);
+                       final String jobTitle, final List<Role> roles) {
+        User user = new User(schoolId, email, firstName, lastName, jobTitle, roles);
         user = repo.save(user);
         return user;
     }

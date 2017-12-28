@@ -6,6 +6,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
+
+import static java.util.Objects.isNull;
 
 /**
  * Created by boot on 25/12/2017.
@@ -23,6 +26,7 @@ public class User {
 
     private final String firstName;
     private final String lastName;
+    private final String jobTitle;
     private final List<Role> roles;
 
     public User() {
@@ -30,15 +34,17 @@ public class User {
         this.email = null;
         this.firstName = null;
         this.lastName = null;
+        this.jobTitle = null;
         this.roles = null;
     }
 
     public User(final Long schoolId, final String email, final String firstName, final String lastName,
-                final List<Role> roles) {
+                final String jobTitle, final List<Role> roles) {
         this.schoolId = schoolId;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.jobTitle = isNull(jobTitle) ? "" : jobTitle;
         this.roles = roles;
     }
 
@@ -62,6 +68,10 @@ public class User {
         return roles;
     }
 
+    public String getJobTitle() {
+        return jobTitle;
+    }
+
     public boolean owner() {
         return roles.stream().anyMatch((role) -> role.getCode().equals(OWNER));
     }
@@ -73,19 +83,21 @@ public class User {
 
         User user = (User) o;
 
-        if (schoolId != null ? !schoolId.equals(user.schoolId) : user.schoolId != null) return false;
         if (email != null ? !email.equals(user.email) : user.email != null) return false;
+        if (schoolId != null ? !schoolId.equals(user.schoolId) : user.schoolId != null) return false;
         if (firstName != null ? !firstName.equals(user.firstName) : user.firstName != null) return false;
         if (lastName != null ? !lastName.equals(user.lastName) : user.lastName != null) return false;
+        if (jobTitle != null ? !jobTitle.equals(user.jobTitle) : user.jobTitle != null) return false;
         return roles != null ? roles.equals(user.roles) : user.roles == null;
     }
 
     @Override
     public int hashCode() {
-        int result = schoolId != null ? schoolId.hashCode() : 0;
-        result = 31 * result + (email != null ? email.hashCode() : 0);
+        int result = email != null ? email.hashCode() : 0;
+        result = 31 * result + (schoolId != null ? schoolId.hashCode() : 0);
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + (jobTitle != null ? jobTitle.hashCode() : 0);
         result = 31 * result + (roles != null ? roles.hashCode() : 0);
         return result;
     }
@@ -93,10 +105,11 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "schoolId=" + schoolId +
-                ", email='" + email + '\'' +
+                "email='" + email + '\'' +
+                ", schoolId=" + schoolId +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
+                ", jobTitle='" + jobTitle + '\'' +
                 ", roles=" + roles +
                 '}';
     }

@@ -8,6 +8,7 @@ import co.lazuly.users.services.UserService;
 import co.lazuly.users.streaming.NewUser;
 import co.lazuly.users.streaming.UserStreamSender;
 import co.lazuly.users.utils.UserTokenUtils;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class UsersResource {
     }
 
     private boolean isRolesChanged(User newUser, User oldUser) {
-        return newUser.getRoles().equals(oldUser.getRoles());
+        return !newUser.getRoles().equals(oldUser.getRoles());
     }
 
     private boolean isWellDefine(final Long schoolId, final String email, final User user, final User old) {
@@ -78,7 +79,8 @@ public class UsersResource {
         try {
             List<co.lazuly.users.model.Role> roles = rolesRestClient.get(req.getRoles());
 
-            User newUser = service.create(schoolId, req.getEmail(), req.getFirstName(), req.getLastName(), roles);
+            User newUser = service.create(schoolId, req.getEmail(), req.getFirstName(), req.getLastName(),
+                    req.getJobTitle(), roles);
 
             sender.send(new NewUser(req.getFirstName(), req.getLastName(), req.getEmail(), req.getRoles(), schoolId));
 
@@ -124,7 +126,7 @@ public class UsersResource {
             if (isNull(oldUser)) return badRequest().build();
 
             if (isRolesChanged(user, oldUser)) {
-                //TODO inform to auth service
+                sender.changeRoles(email, Lists.transform(user.getRoles(), co.lazuly.users.model.Role::getCode));
             }
 
             return ok(user);

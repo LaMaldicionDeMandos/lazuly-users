@@ -20,6 +20,7 @@ import static java.util.Objects.isNull;
 @EnableBinding(UserChannels.class)
 public class NewOwnerStream {
 
+    public static final String OWNER = "Dueño";
     @Autowired
     UserService service;
 
@@ -29,8 +30,8 @@ public class NewOwnerStream {
         logger.info("Receiving new owner {}.", req);
         try {
             //TODO sacar, es una negrada, pasa que sino estarian llamandose muchas veces seguidas
-            List<Role> roles = Lists.transform(req.getRoles(), (role) -> new Role(role, "Dueño"));
-            service.create(req.getSchoolId(), req.getEmail(), req.getFirstName(), req.getLastName(), roles);
+            List<Role> roles = Lists.transform(req.getRoles(), (role) -> new Role(role, OWNER));
+            service.create(req.getSchoolId(), req.getEmail(), req.getFirstName(), req.getLastName(), OWNER, roles);
         } catch (Exception e) {
             logger.info("Error saving new owner from stream");
         }
