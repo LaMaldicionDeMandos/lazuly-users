@@ -24,7 +24,7 @@ spring:
 app:
   host: ${HOST}
   security:
-    clientkey: ${CLIENT_KEY}
+    clientkey: ${JWT_SECRET}
 eureka:
   instance:
     preferIpAddress: true
@@ -53,8 +53,6 @@ spring:
           brokers: localhost
 app:
   secret: aidafrancoygeorgelosamo
-  signing:
-    key: aidafrancoygeorgelosamo
 server:
   port: 8080
 
@@ -72,7 +70,5 @@ spring:
           brokers: localhost
 app:
   secret: ${INTERNAL_SECRET}
-  signing:
-    key: ${JWT_SECRET}
 server:
   port: ${PORT}
