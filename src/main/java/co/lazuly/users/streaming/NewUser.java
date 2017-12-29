@@ -16,7 +16,7 @@ public class NewUser extends NewUserRequest {
     }
 
     public NewUser(String firstName, String lastName, String email, List<String> roles, Long schoolId) {
-        super(firstName, lastName, email, roles);
+        super(firstName, lastName, email, "", roles);
         this.schoolId = schoolId;
     }
 
