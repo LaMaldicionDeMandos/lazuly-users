@@ -39,6 +39,10 @@ public class UserService {
         return repo.findBySchoolId(schoolId);
     }
 
+    public List getOnlySchoolAdminUser(Long schoolId) {
+        return repo.findNotTeacherAndNotParents(schoolId);
+    }
+
     public User change(final Long schoolId, final User user) {
         User old = repo.findBySchoolIdAndEmail(schoolId, user.getEmail());
         if (!isNull(old)) {

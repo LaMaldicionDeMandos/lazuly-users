@@ -100,7 +100,7 @@ public class UsersResource {
         Long schoolId = utils.getSchoolId(owner);
 
         try {
-            List<User> users = service.getSchoolUsers(schoolId);
+            List<User> users = service.getOnlySchoolAdminUser(schoolId);
             return ok(users);
         } catch(Exception e) {
             logger.info(e.getMessage());
