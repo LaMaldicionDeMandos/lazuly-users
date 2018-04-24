@@ -167,7 +167,7 @@ public class UsersResource {
         }
     }
 
-    @RequestMapping(value = "/profile/{email}", method = RequestMethod.PATCH)
+    @RequestMapping(value = "{email}/profile", method = RequestMethod.PATCH)
     public ResponseEntity<User> change(final OAuth2Authentication owner, @PathVariable final String email,
                                        @RequestBody Profile profile) {
         logger.info("Looking up data for {}", owner.getPrincipal());
