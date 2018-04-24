@@ -109,6 +109,19 @@ public class UsersResource {
         }
     }
 
+    @RequestMapping(value = "me/profile")
+    public ResponseEntity<Profile> getProfile(final OAuth2Authentication owner) {
+        Long schoolId = utils.getSchoolId(owner);
+
+        try {
+            User user = service.get(owner.getPrincipal().toString());
+            return ok(user.getProfile());
+        } catch(Exception e) {
+            logger.info(e.getMessage());
+            return status(INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @RequestMapping(value = "teachers")
     public ResponseEntity<List<User>> getTeachers(final OAuth2Authentication owner) {
         if (!isUserCrudAuthorized(owner)) {
