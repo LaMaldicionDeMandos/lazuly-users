@@ -1,5 +1,6 @@
 package co.lazuly.users.services;
 
+import co.lazuly.users.model.Profile;
 import co.lazuly.users.model.Role;
 import co.lazuly.users.model.User;
 import co.lazuly.users.repositories.UserRepository;
@@ -41,6 +42,19 @@ public class UserService {
 
     public List getOnlySchoolAdminUser(Long schoolId) {
         return repo.findNotTeacherAndNotParents(schoolId);
+    }
+
+    public List getTeachers(Long schoolId) {
+        return repo.findTeachers(schoolId);
+    }
+
+    public User updateProfile(final Long schoolId, final String email, final Profile profile) {
+        User user = repo.findBySchoolIdAndEmail(schoolId, email);
+        if (!isNull(user)) {
+            user.updateProfile(profile);
+            repo.save(user);
+        }
+        return user;
     }
 
     public User change(final Long schoolId, final User user) {

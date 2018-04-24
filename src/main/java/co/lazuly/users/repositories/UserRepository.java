@@ -17,5 +17,8 @@ public interface UserRepository extends MongoRepository<User, String> {
     @Query("{schoolId: ?0, $and: [{'roles.code': {$ne: 'teacher'}}, {'roles.code': {$ne: 'parent'}}]}")
     List<User> findNotTeacherAndNotParents(final Long schoolId);
 
+    @Query("{schoolId: ?0, 'roles.code': 'teacher'}")
+    List<User> findTeachers(final Long schoolId);
+
     User findBySchoolIdAndEmail(final Long schoolId, final String email);
 }

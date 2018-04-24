@@ -28,6 +28,7 @@ public class User {
     private final String lastName;
     private final String jobTitle;
     private final List<Role> roles;
+    private Profile profile;
 
     public User() {
         this.schoolId = null;
@@ -36,6 +37,7 @@ public class User {
         this.lastName = null;
         this.jobTitle = null;
         this.roles = null;
+        this.profile = null;
     }
 
     public User(final Long schoolId, final String email, final String firstName, final String lastName,
@@ -46,6 +48,7 @@ public class User {
         this.lastName = lastName;
         this.jobTitle = isNull(jobTitle) ? "" : jobTitle;
         this.roles = roles;
+        this.profile = null;
     }
 
     public Long getSchoolId() {
@@ -74,6 +77,23 @@ public class User {
 
     public boolean owner() {
         return roles.stream().anyMatch((role) -> role.getCode().equals(OWNER));
+    }
+
+    public Profile updateProfile(final Profile newProfile) {
+        final Profile profile = isNull(this.profile) ? newProfile : new Profile(
+                isNull(newProfile.getEmail()) ? this.profile.getEmail() : newProfile.getEmail(),
+                isNull(newProfile.getPhones()) ? this.profile.getPhones() : newProfile.getPhones(),
+                isNull(newProfile.getPicture()) ? this.profile.getPicture() : newProfile.getPicture());
+        this.setProfile(profile);
+        return profile;
+    }
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
     }
 
     @Override

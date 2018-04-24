@@ -1,5 +1,6 @@
 package co.lazuly.users.resources;
 
+import co.lazuly.users.model.Profile;
 import co.lazuly.users.model.User;
 import co.lazuly.users.resources.requests.NewUserRequest;
 import co.lazuly.users.restclients.RolesRestClient;
@@ -108,6 +109,23 @@ public class UsersResource {
         }
     }
 
+    @RequestMapping(value = "teachers")
+    public ResponseEntity<List<User>> getTeachers(final OAuth2Authentication owner) {
+        if (!isUserCrudAuthorized(owner)) {
+            return status(UNAUTHORIZED).build();
+        }
+
+        Long schoolId = utils.getSchoolId(owner);
+
+        try {
+            List<User> users = service.getTeachers(schoolId);
+            return ok(users);
+        } catch(Exception e) {
+            logger.info(e.getMessage());
+            return status(INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @RequestMapping(value = "{email}", method = RequestMethod.PUT)
     public ResponseEntity<User> change(final OAuth2Authentication owner, @PathVariable final String email,
                                        @RequestBody User user) {
@@ -128,6 +146,27 @@ public class UsersResource {
             if (isRolesChanged(user, oldUser)) {
                 sender.changeRoles(email, Lists.transform(user.getRoles(), co.lazuly.users.model.Role::getCode));
             }
+
+            return ok(user);
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+            return status(INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @RequestMapping(value = "/profile/{email}", method = RequestMethod.PATCH)
+    public ResponseEntity<User> change(final OAuth2Authentication owner, @PathVariable final String email,
+                                       @RequestBody Profile profile) {
+        logger.info("Looking up data for {}", owner.getPrincipal());
+        if (!isUserCrudAuthorized(owner)) return status(UNAUTHORIZED).build();
+
+        Long schoolId = utils.getSchoolId(owner);
+
+        try {
+
+            User user = service.updateProfile(schoolId, email, profile);
+
+            if (isNull(user)) return badRequest().build();
 
             return ok(user);
         } catch (Exception e) {
